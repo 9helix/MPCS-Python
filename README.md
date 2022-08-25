@@ -4,6 +4,8 @@ A program for solving the neo uncertainty
 MPCS stands for "Minor Planet Center Solver"
 
 INSTRUCTIONS<br>
+The required modules for running this Python script are listed inside the `requirements.txt` file.
+
 In `coord.txt` are the coordinates taken in the previous session. The last coordinate is copied to clipboard.
 In `settings.ini` you can change your telescopes FOV (in "), default is 60 ".
 
