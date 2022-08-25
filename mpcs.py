@@ -16,22 +16,26 @@ err = True
 
 
 while err:
-    #url=input('Enter offset URL: ')
-    url = "https://cgi.minorplanetcenter.net/cgi-bin/uncertaintymap.cgi?Obj=P11wdHj&JD=2459810.791667&Form=Y&Ext=VAR&OC=000&META=apm00"
+    url=input('Enter offset URL: ')
+    #url = "https://cgi.minorplanetcenter.net/cgi-bin/uncertaintymap.cgi?Obj=P11wdHj&JD=2459810.791667&Form=Y&Ext=VAR&OC=000&META=apm00"
     obj_name = url[url.find('Obj=')+4:url.find('&JD')]
     if not validators.url(url):
-        input("Invalid URL\n")
+        print("Invalid URL\n")
         continue
     print('Fetching data ...')
-    response = request.urlopen(url)
+    try:
+        response = request.urlopen(url)
+    except:
+        print("Invalid URL\n")
+        continue
     page_source = response.read().decode('utf-8')
     if 'error' in page_source:
-        input("Invalid URL\n")
+        print("Invalid URL\n")
         continue
     print('\nProcessing data ...')
     soup = bs(page_source, 'html.parser')
     if soup.find('pre') == None:
-        input("Invalid URL\n")
+        print("Invalid URL\n")
         continue
     err = False
 content = soup.find('pre').text
@@ -121,7 +125,7 @@ class BlittedCursor:
             self.ax.draw_artist(self.text)
             self.ax.figure.canvas.blit(self.ax.bbox)
 
-'''
+
 def zoom_factory(ax, base_scale=2.):
     def zoom_fun(event):
         # get the current x and y limits
@@ -154,7 +158,7 @@ def zoom_factory(ax, base_scale=2.):
 
     # return the function
     return zoom_fun
-'''
+
 
 fig, ax = plt.subplots()  # constrained_layout=True)
 
@@ -260,7 +264,7 @@ plt.gca().invert_xaxis()
 plt.ticklabel_format(style='plain')
 plt.tight_layout()
 click = Click(ax, coordclick, button=1)
-scale = 1
-#f = zoom_factory(ax, base_scale=scale)
+scale = 1.25
+f = zoom_factory(ax, base_scale=scale)
 plt.gca().set_aspect('equal', adjustable='box')
 plt.show()
