@@ -1,4 +1,4 @@
-# MPCS&nbsp;<img src="https://raw.githubusercontent.com/9helix/MPCS-Python/main/meteor.ico" width="40">
+# NEO PLOTTER&nbsp;<img src="https://raw.githubusercontent.com/9helix/MPCS-Python/main/meteor.ico" width="40">
 MPCS stands for "Minor Planet Center Solver"
 This program plots data points from uncertainty maps from the Minor PLnaet Center website inside Python so that the NEOs could be observed more accurately.
 
