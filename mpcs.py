@@ -1,4 +1,4 @@
-import pyperclip as pc  # from matplotlib.backend_bases import MouseButton
+import pyperclip as pc
 from PyQt5 import QtGui
 from urllib import request
 from bs4 import BeautifulSoup as bs
@@ -8,13 +8,16 @@ import matplotlib.patches as patches
 import configparser as cp
 import os
 import string
+from matplotlib.lines import Line2D
 
 config = cp.ConfigParser()
 config.read('settings.ini')
-fov = config['DEFAULT'].getint('FOV')
-
+fov = config['MAIN'].getint('FOV')
+loop = config['MAIN'].getboolean('LOOP')
 
 # processing website data
+x_vals = []
+y_vals = []
 go = True
 first = True
 err = True
@@ -25,7 +28,6 @@ while go:
     exp_dur = int(input('Exposure duration (in seconds): '))
     while err:
         url = input('Enter offset URL: ')
-        # url = "https://cgi.minorplanetcenter.net/cgi-bin/uncertaintymap.cgi?Obj=P11wdHj&JD=2459810.791667&Form=Y&Ext=VAR&OC=000&META=apm00"
         obj_name = url[url.find('Obj=')+4:url.find('&JD')]
         if not validators.url(url):
             print("Invalid URL\n")
@@ -74,6 +76,12 @@ while go:
     dec_min = int(table[8])
     dec_sec = int(table[9])
     final_output = ""
+    black_counter = 0
+    red_counter = 0
+    orange_counter = 0
+    green_counter = 0
+    blue_counter = 0
+    # pink_counter=0
     ra_sec_total = ra_hr*3600+ra_min*60+ra_sec
     if dec_deg < 0:
         dec_sec_total = dec_deg*3600-dec_min*60-dec_sec
@@ -90,18 +98,25 @@ while go:
         try:
             int(indicator)
             color = 'g'  # green
+            green_counter += 1
         except ValueError:
             if indicator == '!':
+                orange_counter += 1
                 color = 'tab:orange'  # orange
             elif indicator == '!!':
+                red_counter += 1
                 color = 'r'  # red
             elif indicator == '***':
+                black_counter += 1
                 color = 'k'  # black
             else:
+                blue_counter += 1
                 color = 'b'  # blue
         points[coords] = color
+        x_vals.append(x)
+        y_vals.append(y)
 
-    print('\nPlotting data ...')
+    print('\nPlotting data ...\n')
 
     class BlittedCursor:
         """
@@ -116,7 +131,7 @@ while go:
                 width=fov, height=fov, color='c', lw=2, ls='-', xy=(0, 0), fill=False)
             self.ax.add_patch(self.rect)
             self.text = ax.text(
-                x=0.55, y=0.93, s='', transform=ax.transAxes, ha='center')
+                x=0.52, y=0.93, s='', transform=ax.transAxes, ha='center', fontsize='large')
             self._creating_background = False
             ax.figure.canvas.mpl_connect('draw_event', self.on_draw)
 
@@ -253,8 +268,7 @@ while go:
         ax.add_patch(trace)
         plt.draw()
         # ax.draw_artist(trace)
-        #print(event.xdata, event.ydata)
-        #print(x, y)
+
         ra_sec_total_final = ra_sec_total+x
         dec_sec_total_final = dec_sec_total+y
 
@@ -290,7 +304,7 @@ while go:
         header = f"* {obj_name}_{suffixes[suffix_pos]}     {mag}      {exp_num} x {exp_dur}\n{yr} {mth} {day}   "
         suffix_pos += 1
         output = header+output
-        # print(output)
+
         final_output += output
 
     def reset():
@@ -300,36 +314,68 @@ while go:
         global final_output
         global first
         global go
-        print(final_output)
-        pc.copy(final_output)
-        if first:
-            f = open('coords.txt', 'w')
-            first = False
-        else:
-            f = open('coords.txt', 'a')
-        f.write(final_output)
-        f.close()
-        # reset()
-        #feed = input('Continue? (y/n) ')
-        # if feed.lower() == "n":
-        #go = False
+        if final_output != "":
+            print(final_output)
 
+            pc.copy(final_output)
+            print('Copied to clipboard!\n')
+            if first:
+                f = open('coords.txt', 'w')
+                first = False
+            else:
+                f = open('coords.txt', 'a')
+            f.write(final_output)
+            f.close()
+
+    leg = ax.legend(handles=[Line2D([0], [0], marker='o', color='w', label=f'{black_counter}',
+                                    markerfacecolor='k', markersize=0),
+                             Line2D([0], [0], marker='o', color='w', label=f'{red_counter}',
+                                    markerfacecolor='r', markersize=0),
+                             Line2D([0], [0], marker='o', color='w', label=f'{orange_counter}',
+                                    markerfacecolor='tab:orange', markersize=0),
+                             Line2D([0], [0], marker='o', color='w', label=f'{green_counter}',
+                                    markerfacecolor='g', markersize=0),
+                             Line2D([0], [0], marker='o', color='w', label=f'{blue_counter}',
+                                    markerfacecolor='b', markersize=0)], loc='upper right', labelspacing=0.8, title="Counts")
+    colors = ['k', 'r', 'tab:orange', 'g', 'b']
+    colors_pos = 0
+
+    for text in leg.get_texts():
+        text.set_color(colors[colors_pos])
+        colors_pos += 1
     #ax.format_coord = lambda x, y: f"R.A.={round(x)}\", Decl.={round(y)}\""
     thismanager.window.setWindowIcon(QtGui.QIcon(
         rf"{os.path.dirname(__file__)}\meteor.ico"))
     plt.gca().invert_xaxis()
     plt.ticklabel_format(style='plain')
-    plt.tight_layout()
+
     click = Click(ax, coordclick, button=1)
     scale = 1.25
     f = zoom_factory(ax, base_scale=scale)
     fig.canvas.mpl_connect('close_event', on_close)
     plt.gca().set_aspect('equal', adjustable='datalim')
+
+    centroid = (sum(x_vals)/len(x_vals), sum(y_vals)/len(y_vals))
+    left_dist = abs(max(x_vals)-centroid[0])
+    right_dist = abs(centroid[0]-min(x_vals))
+    x_offset = max(left_dist, right_dist)
+
+    bottom_dist = abs(min(y_vals)-centroid[1])
+    top_dist = abs(centroid[1]-max(y_vals))
+    y_offset = max(top_dist, bottom_dist)
+
+    ax.set_xlim(left=(centroid[0]+x_offset)*1,
+                right=(centroid[0]-x_offset)*1)
+    ax.set_ylim(bottom=(centroid[1]-y_offset)
+                * 1, top=(centroid[1]+y_offset)*1)
+    plt.tight_layout()
     plt.show()
 
-    print('\nCopied to clipboard!\n')
-    feed = input('Continue? (y/n) ')
-    print()
-    if feed.lower() == "n":
+    if loop:
+        feed = input('Continue? (y/n) ')
+        print()
+        if feed.lower() == "n":
+            go = False
+        err = True
+    else:
         go = False
-    err = True
