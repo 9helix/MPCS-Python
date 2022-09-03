@@ -299,7 +299,7 @@ while go:
         dec_min_final = f'{int(dec_min_final):02}'
         dec_sec_final = f'{dec_sec_final:02}'
 
-        output = f'{ra_hr_final} {ra_min_final} {ra_sec_final}   {dec_deg_final} {dec_min_final} {dec_sec_final}\n\n'
+        output = f'{ra_hr_final} {ra_min_final} {ra_sec_final}   {dec_deg_final} {dec_min_final} {dec_sec_final} sec\n\n'
 
         header = f"* {obj_name}_{suffixes[suffix_pos]}     {mag}      {exp_num} x {exp_dur}\n{yr} {mth} {day}   "
         suffix_pos += 1
@@ -360,14 +360,27 @@ while go:
     right_dist = abs(centroid[0]-min(x_vals))
     x_offset = max(left_dist, right_dist)
 
+    x_range = max(x_vals)-min(x_vals)
+    y_range = max(y_vals)-min(y_vals)
+
     bottom_dist = abs(min(y_vals)-centroid[1])
     top_dist = abs(centroid[1]-max(y_vals))
     y_offset = max(top_dist, bottom_dist)
+    if fov < x_range or fov < y_range:
+        ax.set_xlim(left=(centroid[0]+x_offset)*1.1,
+                    right=(centroid[0]-x_offset)*1.1)
+        ax.set_ylim(bottom=(centroid[1]-y_offset)
+                    * 1.1, top=(centroid[1]+y_offset)*1.1)
+        '''ax.set_xlim(left=(max(x_vals))*1.1,
+                    right=(min(x_vals))*1.1)
+        ax.set_ylim(bottom=(min(y_vals))
+                    * 1.1, top=(max(y_vals))*1.1)'''
+    else:
+        ax.set_xlim(left=(centroid[0]+fov/2)*1.2,
+                    right=(centroid[0]-fov/2)*1.2)
+        ax.set_ylim(bottom=(centroid[1]-fov/2)
+                    * 1.2, top=(centroid[1]+fov/2)*1.2)
 
-    ax.set_xlim(left=(centroid[0]+x_offset)*1,
-                right=(centroid[0]-x_offset)*1)
-    ax.set_ylim(bottom=(centroid[1]-y_offset)
-                * 1, top=(centroid[1]+y_offset)*1)
     plt.tight_layout()
     plt.show()
 
