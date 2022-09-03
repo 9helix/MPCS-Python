@@ -9,11 +9,46 @@ import configparser as cp
 import os
 import string
 from matplotlib.lines import Line2D
+#import win32clipboard as w32c
 
 config = cp.ConfigParser()
 config.read('settings.ini')
 fov = config['MAIN'].getint('FOV')
 loop = config['MAIN'].getboolean('LOOP')
+clip = config['MAIN'].getboolean('CLIPBOARD')
+
+
+def clip_check(url_err=False):
+    global exp_num
+    global exp_dur
+    global url
+    global fov
+    if url_err:
+        input('Press enter to retry... ')
+    if clip:
+        ok = False
+        while not ok:
+            try:
+                print('Fetching clipboard data...')
+                data = pc.paste()
+                '''
+                w32c.OpenClipboard()
+                data = w32c.GetClipboardData()
+                w32c.CloseClipboard()'''
+                data = data.split(' ')
+                exp_num = int(data[0])
+                exp_dur = int(data[1])
+                url = data[2]
+                fov = int(data[3])
+                ok = True
+                '''
+                w32c.OpenClipboard()
+                w32c.EmptyClipboard()
+                w32c.CloseClipboard()'''
+            except:
+                input("Invalid data format in clipboard. Press enter to retry... ")
+                print('\n')
+
 
 # processing website data
 x_vals = []
@@ -23,29 +58,40 @@ first = True
 err = True
 suffixes = list(string.ascii_lowercase)
 while go:
+    clip_check()
     suffix_pos = 0
-    exp_num = int(input('Number of exposures: '))
-    exp_dur = int(input('Exposure duration (in seconds): '))
+    if not clip:
+        exp_num = int(input('Number of exposures: '))
+        exp_dur = int(input('Exposure duration (in seconds): '))
     while err:
-        url = input('Enter offset URL: ')
+        if not clip:
+            url = input('Enter offset URL: ')
         obj_name = url[url.find('Obj=')+4:url.find('&JD')]
         if not validators.url(url):
             print("Invalid URL\n")
+            if clip:
+                clip_check(url_err=True)
             continue
-        print('\nFetching data ...')
+        print('\nFetching URL data ...')
         try:
             response = request.urlopen(url)
         except:
             print("Invalid URL\n")
+            if clip:
+                clip_check(url_err=True)
             continue
         page_source = response.read().decode('utf-8')
         if 'error' in page_source:
             print("Invalid URL\n")
+            if clip:
+                clip_check(url_err=True)
             continue
         print('\nProcessing data ...')
         soup = bs(page_source, 'html.parser')
         if soup.find('pre') == None:
             print("Invalid URL\n")
+            if clip:
+                clip_check(url_err=True)
             continue
         err = False
 
@@ -299,9 +345,9 @@ while go:
         dec_min_final = f'{int(dec_min_final):02}'
         dec_sec_final = f'{dec_sec_final:02}'
 
-        output = f'{ra_hr_final} {ra_min_final} {ra_sec_final}   {dec_deg_final} {dec_min_final} {dec_sec_final} sec\n\n'
+        output = f'{ra_hr_final} {ra_min_final} {ra_sec_final}   {dec_deg_final} {dec_min_final} {dec_sec_final}\n\n'
 
-        header = f"* {obj_name}_{suffixes[suffix_pos]}     {mag}      {exp_num} x {exp_dur}\n{yr} {mth} {day}   "
+        header = f"* {obj_name}_{suffixes[suffix_pos]}     {mag}      {exp_num} x {exp_dur} sec\n{yr} {mth} {day}   "
         suffix_pos += 1
         output = header+output
 
