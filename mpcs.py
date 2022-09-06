@@ -1,12 +1,11 @@
 import pyperclip as pc
-from PyQt5 import QtGui
+#from PyQt5 import QtGui
 from urllib import request
 from bs4 import BeautifulSoup as bs
-import validators
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import configparser as cp
-import os
+#import os
 import string
 from matplotlib.lines import Line2D
 #import win32clipboard as w32c
@@ -46,7 +45,10 @@ def clip_check(url_err=False):
                 w32c.EmptyClipboard()
                 w32c.CloseClipboard()'''
             except:
-                input("Invalid data format in clipboard. Press enter to retry... ")
+                fed = input(
+                    "Invalid data format in clipboard. Press enter to retry or n to exit... ")
+                if fed.lower() == 'n':
+                    exit()
                 print('\n')
 
 
@@ -67,11 +69,6 @@ while go:
         if not clip:
             url = input('Enter offset URL: ')
         obj_name = url[url.find('Obj=')+4:url.find('&JD')]
-        if not validators.url(url):
-            print("Invalid URL\n")
-            if clip:
-                clip_check(url_err=True)
-            continue
         print('\nFetching URL data ...')
         try:
             response = request.urlopen(url)
@@ -390,8 +387,13 @@ while go:
         text.set_color(colors[colors_pos])
         colors_pos += 1
     #ax.format_coord = lambda x, y: f"R.A.={round(x)}\", Decl.={round(y)}\""
-    thismanager.window.setWindowIcon(QtGui.QIcon(
-        rf"{os.path.dirname(__file__)}\meteor.ico"))
+    # thismanager.window.setWindowIcon(QtGui.QIcon(
+    #    rf"{os.path.dirname(__file__)}\meteor.ico"))
+    # thismanager.window.wm_iconbitmap(
+    #    rf"{os.path.dirname(__file__)}\meteor.ico")
+
+    # thismanager.window.SetIcon(
+    #    wx.Icon(rf"{os.path.dirname(__file__)}\meteor.ico", wx.BITMAP_TYPE_ICO))
     plt.gca().invert_xaxis()
     plt.ticklabel_format(style='plain')
 
@@ -426,7 +428,7 @@ while go:
                     right=(centroid[0]-fov/2)*1.2)
         ax.set_ylim(bottom=(centroid[1]-fov/2)
                     * 1.2, top=(centroid[1]+fov/2)*1.2)
-
+    import matplotlib
     plt.tight_layout()
     plt.show()
 
