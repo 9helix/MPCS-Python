@@ -1,14 +1,11 @@
 import pyperclip as pc
-#from PyQt5 import QtGui
 from urllib import request
 from bs4 import BeautifulSoup as bs
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import configparser as cp
-#import os
 import string
 from matplotlib.lines import Line2D
-#import win32clipboard as w32c
 
 config = cp.ConfigParser()
 config.read('settings.ini')
@@ -30,20 +27,12 @@ def clip_check(url_err=False):
             try:
                 print('Fetching clipboard data...')
                 data = pc.paste()
-                '''
-                w32c.OpenClipboard()
-                data = w32c.GetClipboardData()
-                w32c.CloseClipboard()'''
                 data = data.split(' ')
                 exp_num = int(data[0])
                 exp_dur = int(data[1])
                 url = data[2]
                 fov = int(data[3])
                 ok = True
-                '''
-                w32c.OpenClipboard()
-                w32c.EmptyClipboard()
-                w32c.CloseClipboard()'''
             except:
                 fed = input(
                     "Invalid data format in clipboard. Press enter to retry or n to exit... ")
@@ -340,11 +329,11 @@ while go:
         else:
             dec_deg_final = f'{int(dec_deg_final):03}'
         dec_min_final = f'{int(dec_min_final):02}'
-        dec_sec_final = f'{dec_sec_final:02}'
+        dec_sec_final = f'{dec_sec_final:04}'
 
         output = f'{ra_hr_final} {ra_min_final} {ra_sec_final}   {dec_deg_final} {dec_min_final} {dec_sec_final}\n\n'
 
-        header = f"* {obj_name}_{suffixes[suffix_pos]}     {mag}      {exp_num} x {exp_dur} sec\n{yr} {mth} {day}   "
+        header = f"* {obj_name}_{suffixes[suffix_pos]}     {mag}      {exp_num} x {exp_dur} sec\n{yr} {mth} {day} {hr}   "
         suffix_pos += 1
         output = header+output
 
@@ -387,13 +376,7 @@ while go:
         text.set_color(colors[colors_pos])
         colors_pos += 1
     #ax.format_coord = lambda x, y: f"R.A.={round(x)}\", Decl.={round(y)}\""
-    # thismanager.window.setWindowIcon(QtGui.QIcon(
-    #    rf"{os.path.dirname(__file__)}\meteor.ico"))
-    # thismanager.window.wm_iconbitmap(
-    #    rf"{os.path.dirname(__file__)}\meteor.ico")
 
-    # thismanager.window.SetIcon(
-    #    wx.Icon(rf"{os.path.dirname(__file__)}\meteor.ico", wx.BITMAP_TYPE_ICO))
     plt.gca().invert_xaxis()
     plt.ticklabel_format(style='plain')
 
