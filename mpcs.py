@@ -6,6 +6,7 @@ import matplotlib.patches as patches
 import configparser as cp
 import string
 from matplotlib.lines import Line2D
+from math import *
 
 config = cp.ConfigParser()
 config.read('settings.ini')
@@ -301,7 +302,7 @@ while go:
         plt.draw()
         # ax.draw_artist(trace)
 
-        ra_sec_total_final = ra_sec_total+x*15
+        ra_sec_total_final = ra_sec_total+x/(15*cos(dec_sec_total*pi/648000))
         dec_sec_total_final = dec_sec_total+y
 
         ra_hr_final = ra_sec_total_final//3600
