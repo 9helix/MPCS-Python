@@ -301,7 +301,7 @@ while go:
         plt.draw()
         # ax.draw_artist(trace)
 
-        ra_sec_total_final = ra_sec_total+x
+        ra_sec_total_final = ra_sec_total+x*15
         dec_sec_total_final = dec_sec_total+y
 
         ra_hr_final = ra_sec_total_final//3600
@@ -316,10 +316,11 @@ while go:
 
         if ra_hr_final >= 24:
             ra_hr_final = ra_hr_final % 24
+            '''
         if dec_deg_final > 90:
             dec_deg_final = 180-dec_deg_final
         if dec_deg_final < -90:
-            dec_deg_final = -180-dec_deg_final
+            dec_deg_final = -180-dec_deg_final'''
 
         ra_hr_final = f'{int(ra_hr_final):02}'
         ra_min_final = f'{int(ra_min_final):02}'
@@ -411,7 +412,6 @@ while go:
                     right=(centroid[0]-fov/2)*1.2)
         ax.set_ylim(bottom=(centroid[1]-fov/2)
                     * 1.2, top=(centroid[1]+fov/2)*1.2)
-    import matplotlib
     plt.tight_layout()
     plt.show()
 
