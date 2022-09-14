@@ -15,3 +15,7 @@ If you prefer manual input you can enable it in `settings.ini`.
 You run the program by opening the `mpcs.py` file. It will then fect the data and plot it in the new window.
 When you hover with you mouse on the graph, a rectangle will appear which indicates the FOV of your telescope. When you have hovered over a desired area, left-click and the coordinates will be written to the `coords.txt` and copied to your clipboard. You can take as many coordinates as you want.
 You can zoom in/out the graph by scrolling your mouse wheel up/down.
+
+<h2>EXPERIMENTAL&nbsp;<img src="https://cdn-icons-png.flaticon.com/512/995/995344.png" alt="drawing2" width="30"</h2>
+
+There's also a compiled version of the Python script named `mpcs.exe`. It's run just by double-clicking on it and it opens in a terminal. Since it's quite large, it takes for it about 10 seconds to load. Also, there might be some errors which are not present in the Python script and when that happens, the terminal will close itself. If that happens, consider using the regular `mpcs.py`.
