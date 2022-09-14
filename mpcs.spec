@@ -13,7 +13,7 @@ a = Analysis(
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
-    excludes=['notebook','cryptography','jedi','share','tcl','gevent','lxml'],
+    excludes=['gevent','notebook','cryptography','share','tcl','lxml','jedi'],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
@@ -28,7 +28,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    exclude_binaries=['Qt5Widgets.dll','libopenblas.XWYDX2IKJW2NMTWSFYNGFUWKQU3LYTCZ.gfortran-win_amd64.dll','Qt5Network.dll'],
+
     name='mpcs',
     debug=False,
     bootloader_ignore_signals=False,
@@ -42,5 +42,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon='meteor.ico',
+    icon='meteor.ico'
 )
