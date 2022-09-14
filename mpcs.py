@@ -120,7 +120,6 @@ while go:
         dec_sec_total = dec_deg*3600-dec_min*60-dec_sec
     else:
         dec_sec_total = dec_deg*3600+dec_min*60+dec_sec
-
     final_output = ""
 
     for line in content:
@@ -303,15 +302,19 @@ while go:
         # ax.draw_artist(trace)
 
         ra_sec_total_final = ra_sec_total+x/(15*cos(dec_sec_total*pi/648000))
-        dec_sec_total_final = dec_sec_total+y
 
+        dec_sec_total_final = dec_sec_total+y
         ra_hr_final = ra_sec_total_final//3600
         ra_min_final = (ra_sec_total_final-ra_hr_final*3600)//60
         ra_sec_final = round(ra_sec_total_final-ra_hr_final *
                              3600-ra_min_final*60, 1)
 
-        dec_deg_final = dec_sec_total_final//3600
-        dec_min_final = (dec_sec_total_final-dec_deg_final*3600)//60
+        if dec_sec_total_final >= 0:
+            dec_deg_final = dec_sec_total_final//3600
+            dec_min_final = (dec_sec_total_final-dec_deg_final*3600)//60
+        else:
+            dec_deg_final = dec_sec_total_final//3600+1
+            dec_min_final = (dec_sec_total_final-dec_deg_final*3600)//60+1
         dec_sec_final = round(dec_sec_total_final -
                               dec_deg_final*3600-dec_min_final*60, 1)
 
@@ -324,14 +327,14 @@ while go:
             dec_deg_final = -180-dec_deg_final'''
 
         ra_hr_final = f'{int(ra_hr_final):02}'
-        ra_min_final = f'{int(ra_min_final):02}'
-        ra_sec_final = f'{ra_sec_final:04}'
+        ra_min_final = f'{abs(int(ra_min_final)):02}'
+        ra_sec_final = f'{abs(ra_sec_final):04}'
         if dec_sec_total_final >= 0:
             dec_deg_final = f'{int(dec_deg_final):+03}'
         else:
             dec_deg_final = f'{int(dec_deg_final):03}'
-        dec_min_final = f'{int(dec_min_final):02}'
-        dec_sec_final = f'{dec_sec_final:04}'
+        dec_min_final = f'{abs(int(dec_min_final)):02}'
+        dec_sec_final = f'{abs(dec_sec_final):04}'
 
         output = f'{ra_hr_final} {ra_min_final} {ra_sec_final}   {dec_deg_final} {dec_min_final} {dec_sec_final}\n\n'
 
