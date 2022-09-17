@@ -8,11 +8,15 @@ import string
 from matplotlib.lines import Line2D
 from math import *
 
+
+# reaad variable values from file
 config = cp.ConfigParser()
 config.read('settings.ini')
 fov = config['MAIN'].getint('FOV')
 loop = config['MAIN'].getboolean('LOOP')
 clip = config['MAIN'].getboolean('CLIPBOARD')
+
+# check if clipboard has valid data
 
 
 def clip_check(url_err=False):
@@ -42,13 +46,14 @@ def clip_check(url_err=False):
                 print('\n')
 
 
-# processing website data
+# setting up constants
 x_vals = []
 y_vals = []
 go = True
 first = True
 err = True
 suffixes = list(string.ascii_lowercase)
+# loop for evry map
 while go:
     clip_check()
     suffix_pos = 0
@@ -74,6 +79,7 @@ while go:
                 clip_check(url_err=True)
             continue
         print('\nProcessing data ...')
+        # processing website data
         soup = bs(page_source, 'html.parser')
         if soup.find('pre') == None:
             print("Invalid URL\n")
@@ -97,6 +103,7 @@ while go:
         table = table[table.index('Dist.')+2:]
     except:
         table = table[table.index('P.A.')+1:]
+    # get object general data
     yr = table[0]
     mth = table[1]
     day = table[2]
@@ -121,7 +128,7 @@ while go:
     else:
         dec_sec_total = dec_deg*3600+dec_min*60+dec_sec
     final_output = ""
-
+    # store point data
     for line in content:
         line = line.split()
         x, y = map(int, line[:2])
@@ -149,6 +156,7 @@ while go:
         y_vals.append(y)
 
     print('\nPlotting data ...\n')
+    # draw fov overlay
 
     class BlittedCursor:
         """
@@ -210,6 +218,7 @@ while go:
                 self.ax.draw_artist(self.rect)
                 self.ax.draw_artist(self.text)
                 self.ax.figure.canvas.blit(self.ax.bbox)
+    # enable mouse wheel zoom
 
     def zoom_factory(ax, base_scale=2.):
         def zoom_fun(event):
@@ -243,7 +252,7 @@ while go:
 
         # return the function
         return zoom_fun
-
+    # set up plot
     fig, ax = plt.subplots()  # figsize=(9, 9))  # constrained_layout=True)
 
     fig.canvas.manager.set_window_title(f'MPCS - {obj_name}')
@@ -256,6 +265,7 @@ while go:
     ax.scatter(*zip(*list(points)), c=list(points.values()), s=5)
 
     thismanager = plt.get_current_fig_manager()
+    # detect click
 
     class Click():
         def __init__(self, ax, func, button=1):
@@ -288,6 +298,7 @@ while go:
                 self.onclick(event)
             self.press = False
             self.move = False
+    # storing coordinate data and making script
 
     def coordclick(event):
 
@@ -344,9 +355,7 @@ while go:
 
         final_output += output
 
-    def reset():
-        global go
-
+    # store data into a file on close
     def on_close(event):
         global final_output
         global first
@@ -363,7 +372,7 @@ while go:
                 f = open('coords.txt', 'a')
             f.write(final_output)
             f.close()
-
+    # set up legend
     leg = ax.legend(handles=[Line2D([0], [0], marker='o', color='w', label=f'{black_counter}',
                                     markerfacecolor='k', markersize=0),
                              Line2D([0], [0], marker='o', color='w', label=f'{red_counter}',
@@ -382,6 +391,7 @@ while go:
         colors_pos += 1
     #ax.format_coord = lambda x, y: f"R.A.={round(x)}\", Decl.={round(y)}\""
 
+    # set up plot view and UI
     plt.gca().invert_xaxis()
     plt.ticklabel_format(style='plain')
 
@@ -419,6 +429,7 @@ while go:
     plt.tight_layout()
     plt.show()
 
+    # determine if the session is continuing or it is over
     if loop:
         feed = input('Continue? (y/n) ')
         print()
